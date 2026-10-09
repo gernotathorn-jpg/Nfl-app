@@ -1,0 +1,7 @@
+# Python 3.11 (nfl_data_py pins pandas<2, which has no wheels for 3.13)
+nfl_data_py==0.3.3
+pandas==1.5.3
+numpy==1.26.4
+pyarrow>=14,<26
+scikit-learn==1.5.2
+scipy==1.14.1

@@ -1,0 +1,75 @@
+name: Update data
+
+on:
+  schedule:
+    - cron: "0 6 * * 2"   # Tuesday 06:00 UTC – after Monday Night Football
+    - cron: "0 6 * * 4"   # Thursday – schedule changes before TNF
+    - cron: "0 6 * * 0"   # Sunday – late flex / schedule changes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write   # keep-alive re-enables this workflow via the API
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: data
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            data/requirements.txt
+            data/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Run pipeline
+        run: python -m nfl_pipeline
+
+      - name: Commit changes (docs/ and data/cache/ only)
+        working-directory: .
+        run: |
+          if [ -z "$(git status --porcelain -- docs data/cache)" ]; then
+            echo "No data changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs data/cache
+          git commit -m "data: update predictions $(date -u +%Y-%m-%dT%H:%MZ)"
+          git pull --rebase --autostash
+          git push
+
+      # GitHub pauses scheduled workflows after 60 days without repository
+      # activity (e.g. in the off-season, when the pipeline has nothing to
+      # commit). Re-enabling the workflow through the API resets that timer
+      # without creating commits.
+      - name: Keep-alive
+        if: always()
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          last=$(git log -1 --format=%ct)
+          age_days=$(( ($(date +%s) - last) / 86400 ))
+          echo "Last commit is ${age_days} days old."
+          if [ "$age_days" -ge 45 ]; then
+            gh api -X PUT "repos/${{ github.repository }}/actions/workflows/update.yml/enable"
+            echo "Workflow re-enabled (keep-alive)."
+          fi
