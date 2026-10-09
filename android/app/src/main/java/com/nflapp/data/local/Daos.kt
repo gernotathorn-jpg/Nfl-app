@@ -8,55 +8,55 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface GameDao {
+abstract class GameDao {
     @Query("SELECT * FROM games ORDER BY kickoffEpochMs, id")
-    fun observeAll(): Flow<List<GameEntity>>
+    abstract fun observeAll(): Flow<List<GameEntity>>
 
     @Query("SELECT * FROM games WHERE id = :id")
-    fun observe(id: String): Flow<GameEntity?>
+    abstract fun observe(id: String): Flow<GameEntity?>
 
     @Query("DELETE FROM games")
-    suspend fun clear()
+    abstract suspend fun clear()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(games: List<GameEntity>)
+    abstract suspend fun insertAll(games: List<GameEntity>)
 
     @Transaction
-    suspend fun replaceAll(games: List<GameEntity>) {
+    open suspend fun replaceAll(games: List<GameEntity>) {
         clear()
         insertAll(games)
     }
 }
 
 @Dao
-interface TeamDao {
+abstract class TeamDao {
     @Query("SELECT * FROM teams ORDER BY eloRank")
-    fun observeAll(): Flow<List<TeamEntity>>
+    abstract fun observeAll(): Flow<List<TeamEntity>>
 
     @Query("SELECT * FROM teams WHERE abbr = :abbr")
-    fun observe(abbr: String): Flow<TeamEntity?>
+    abstract fun observe(abbr: String): Flow<TeamEntity?>
 
     @Query("SELECT * FROM team_seasons WHERE team = :abbr ORDER BY season")
-    fun observeSeasons(abbr: String): Flow<List<TeamSeasonEntity>>
+    abstract fun observeSeasons(abbr: String): Flow<List<TeamSeasonEntity>>
 
     @Query("SELECT * FROM elo_history WHERE team = :abbr ORDER BY season, week")
-    fun observeEloHistory(abbr: String): Flow<List<EloPointEntity>>
+    abstract fun observeEloHistory(abbr: String): Flow<List<EloPointEntity>>
 
     @Query("SELECT * FROM head_to_head WHERE (teamA = :a AND teamB = :b) OR (teamA = :b AND teamB = :a)")
-    fun observeHeadToHead(a: String, b: String): Flow<HeadToHeadEntity?>
+    abstract fun observeHeadToHead(a: String, b: String): Flow<HeadToHeadEntity?>
 
-    @Query("DELETE FROM teams") suspend fun clearTeams()
-    @Query("DELETE FROM team_seasons") suspend fun clearSeasons()
-    @Query("DELETE FROM elo_history") suspend fun clearElo()
-    @Query("DELETE FROM head_to_head") suspend fun clearHeadToHead()
+    @Query("DELETE FROM teams") abstract suspend fun clearTeams()
+    @Query("DELETE FROM team_seasons") abstract suspend fun clearSeasons()
+    @Query("DELETE FROM elo_history") abstract suspend fun clearElo()
+    @Query("DELETE FROM head_to_head") abstract suspend fun clearHeadToHead()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertTeams(items: List<TeamEntity>)
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertSeasons(items: List<TeamSeasonEntity>)
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertElo(items: List<EloPointEntity>)
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertHeadToHead(items: List<HeadToHeadEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) abstract suspend fun insertTeams(items: List<TeamEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) abstract suspend fun insertSeasons(items: List<TeamSeasonEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) abstract suspend fun insertElo(items: List<EloPointEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) abstract suspend fun insertHeadToHead(items: List<HeadToHeadEntity>)
 
     @Transaction
-    suspend fun replaceAll(
+    open suspend fun replaceAll(
         teams: List<TeamEntity>,
         seasons: List<TeamSeasonEntity>,
         elo: List<EloPointEntity>,
@@ -68,13 +68,13 @@ interface TeamDao {
 }
 
 @Dao
-interface SyncMetaDao {
+abstract class SyncMetaDao {
     @Query("SELECT * FROM sync_meta WHERE `key` = :key")
-    suspend fun get(key: String): SyncMetaEntity?
+    abstract suspend fun get(key: String): SyncMetaEntity?
 
     @Query("SELECT * FROM sync_meta WHERE `key` = :key")
-    fun observe(key: String): Flow<SyncMetaEntity?>
+    abstract fun observe(key: String): Flow<SyncMetaEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(meta: SyncMetaEntity)
+    abstract suspend fun upsert(meta: SyncMetaEntity)
 }
