@@ -19,10 +19,11 @@ nflverse ──(Actions: update.yml)──► data/ Python-Pipeline ──► do
 ## Einrichtung
 
 1. **GitHub Pages** aktivieren: *Settings → Pages → Deploy from a branch → `main` / `/docs`*.
-2. **Pages-URL in der App** eintragen: in `android/app/build.gradle.kts` `DEINNAME` durch den
-   GitHub-Benutzernamen ersetzen (oder beim Build `-PdataBaseUrl=https://…/` bzw. die
-   Umgebungsvariable `DATA_BASE_URL` setzen). Daraus entstehen `BuildConfig.PREDICTIONS_URL`
-   und `BuildConfig.STATS_URL`.
+2. **Pages-URL in der App**: in `android/app/build.gradle.kts` ist
+   `https://gernotathorn-jpg.github.io/Nfl-app/` eingetragen (Groß-/Kleinschreibung des
+   Repo-Namens beachten). Für einen Fork anpassen oder beim Build `-PdataBaseUrl=https://…/`
+   bzw. die Umgebungsvariable `DATA_BASE_URL` setzen. Daraus entstehen
+   `BuildConfig.PREDICTIONS_URL` und `BuildConfig.STATS_URL`.
 3. **Actions-Rechte**: *Settings → Actions → General → Workflow permissions → Read and write*.
 4. **Signing-Secrets** für Releases (*Settings → Secrets and variables → Actions*):
    `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
