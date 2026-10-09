@@ -6,10 +6,10 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-// Replace DEINNAME with your GitHub user name (or pass -PdataBaseUrl=... / env DATA_BASE_URL).
+// GitHub Pages URL of this repo: https://<user>.github.io/<repo>/ (override with -PdataBaseUrl=... / env DATA_BASE_URL).
 val dataBaseUrl: String = (project.findProperty("dataBaseUrl") as String?)
     ?: System.getenv("DATA_BASE_URL")
-    ?: "https://DEINNAME.github.io/nfl-app/"
+    ?: "https://gernotathorn-jpg.github.io/Nfl-app/"
 
 android {
     namespace = "com.nflapp"
